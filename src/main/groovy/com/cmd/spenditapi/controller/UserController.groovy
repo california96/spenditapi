@@ -1,7 +1,9 @@
 package com.cmd.spenditapi.controller
 import com.cmd.spenditapi.models.User
+import com.cmd.spenditapi.repository.UserRepository
 import com.cmd.spenditapi.services.UserService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -16,10 +18,19 @@ class UserController {
     @Autowired
     UserService userService
 
-    @GetMapping("/user/{id}")
-    CompletableFuture<ResponseEntity<User>> getUserById(@PathVariable("id") int id) {
-        return userService.getUserById(id)
-                .thenApply(user -> ResponseEntity.ok().body(user)) // Convert User to ResponseEntity with HTTP 200 OK status
-                .exceptionally(ex -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)); // Handle exception with HTTP 404 NOT FOUND status
+    @Autowired
+    UserController(UserService userService){
+        this.userService = userService
     }
+
+    @GetMapping("/healthcheck")
+    String healthResponse(){
+        "ok!"
+    }
+
+    @GetMapping("/user/{id}")
+    private User getUser(@PathVariable("id") int userID){
+        userService.getUserById(userID)
+    }
+
 }
