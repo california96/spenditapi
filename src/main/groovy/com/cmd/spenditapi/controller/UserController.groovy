@@ -23,11 +23,6 @@ class UserController {
         this.userService = userService
     }
 
-    @GetMapping("/healthcheck")
-    String healthResponse(){
-        "ok!"
-    }
-
     @GetMapping("/user/{id}")
     private User getUser(@PathVariable("id") int userID){
         userService.getUserById(userID)
