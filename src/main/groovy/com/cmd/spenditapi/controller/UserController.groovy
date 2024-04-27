@@ -24,7 +24,7 @@ class UserController {
     }
 
     @GetMapping("/user/{id}")
-    private User getUser(@PathVariable("id") int userID){
+    CompletableFuture<User> getUser(@PathVariable("id") int userID) {
         userService.getUserById(userID)
     }
 
