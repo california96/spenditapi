@@ -1,15 +1,46 @@
 package com.cmd.spenditapi.models
 import com.fasterxml.jackson.annotation.JsonInclude
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import org.springframework.data.relational.core.mapping.Table
+import org.springframework.data.relational.core.mapping.Column
 
+import org.springframework.boot.autoconfigure.domain.EntityScan
+
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@Entity
+@EntityScan
+@Table("users")
 class User {
+    @Id
+    @org.springframework.data.annotation.Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column("userid")
     private int userID //use this for URL parameters only!
+
+    @Column("lastname")
     private String lastName
+
+    @Column("firstname")
     private String firstName
+
+    @Column("username")
     private String userName
+
+    @Column("email")
     private String email
+
+    @Column("password")
+    @JsonIgnore
     private String password
+
+    @Column("image")
     private String image
+
+    User(){}
 
     User(String lastName, String firstName, String userName, String email, String password, String image) {
         this.lastName = lastName
