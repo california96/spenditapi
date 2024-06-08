@@ -8,21 +8,21 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 import org.springframework.http.HttpStatus
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.util.concurrent.CompletableFuture
 
 @Slf4j
 @Service
 class UserService {
 
-    static final String COL_NAME = "users"
+
+    private final UserRepository userRepository
+    private final BCryptPasswordEncoder passwordEncoder
 
     @Autowired
-    UserRepository userRepository
-
-    @Autowired
-    UserService(UserRepository userRepository){
+    UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder){
         this.userRepository = userRepository
+        this.passwordEncoder = passwordEncoder
     }
 
 
@@ -35,6 +35,35 @@ class UserService {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, unfe.getMessage())
             } catch (Exception e) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())
+            }
+        })
+    }
+
+    CompletableFuture<String> createUser(User user){
+        CompletableFuture.supplyAsync(()->{
+            try{
+                if(userRepository.existsByEmail(user.getEmail())){
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "email already exists!")
+                }
+
+                user.setPassword(passwordEncoder.encode(user.getPassword()))
+                //todo: for now image will save a default value. Uploading and getting file name will be a separate ticket
+                user.setImage("default.png")
+                userRepository.save(user)
+
+                return "{\"message\": \"User created successfully\"}"
+            } catch(ResponseStatusException rse){
+                throw rse
+            } catch (Exception e){
+
+            }
+
+        }).exceptionally(ex ->{
+            if(ex.getCause() instanceof ResponseStatusException) {
+                ResponseStatusException rse = (ResponseStatusException) ex.getCause()
+                "{\"message\": \"${rse.getMessage()}\"}"
+            } else {
+                "{\"message\": \"${ex.getMessage()}\"}"
             }
         })
     }
