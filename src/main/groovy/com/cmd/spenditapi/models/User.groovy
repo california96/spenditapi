@@ -1,6 +1,8 @@
 package com.cmd.spenditapi.models
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonView
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -15,29 +17,37 @@ import org.springframework.boot.autoconfigure.domain.EntityScan
 @EntityScan
 @Table("users")
 class User {
+
     @Id
     @org.springframework.data.annotation.Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column("userid")
+    @Schema(hidden = true)
+    @JsonView(Views.Public.class)
     private int userID //use this for URL parameters only!
 
     @Column("lastname")
+    @JsonView(Views.Public.class)
     private String lastName
 
     @Column("firstname")
+    @JsonView(Views.Public.class)
     private String firstName
 
     @Column("username")
+    @JsonView(Views.Public.class)
     private String userName
 
     @Column("email")
+    @JsonView(Views.Public.class)
     private String email
 
     @Column("password")
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     private String password
 
     @Column("image")
+    @JsonView(Views.Public.class)
     private String image
 
     User(){}
