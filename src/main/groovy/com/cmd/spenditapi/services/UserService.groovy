@@ -41,29 +41,19 @@ class UserService {
 
     CompletableFuture<String> createUser(User user){
         CompletableFuture.supplyAsync(()->{
-            try{
-                if(userRepository.existsByEmail(user.getEmail())){
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "email already exists!")
-                }
-
-                user.setPassword(passwordEncoder.encode(user.getPassword()))
-                //todo: for now image will save a default value. Uploading and getting file name will be a separate ticket
+            if (userRepository.existsByEmail(user.getEmail())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists")
+            }
+            try {
+                String encodedPassword = passwordEncoder.encode(user.getPassword())
+                user.setPassword(encodedPassword)
                 user.setImage("default.png")
                 userRepository.save(user)
-
-                return "{\"message\": \"User created successfully\"}"
-            } catch(ResponseStatusException rse){
-                throw rse
-            } catch (Exception e){
-
-            }
-
-        }).exceptionally(ex ->{
-            if(ex.getCause() instanceof ResponseStatusException) {
-                ResponseStatusException rse = (ResponseStatusException) ex.getCause()
-                "{\"message\": \"${rse.getMessage()}\"}"
-            } else {
-                "{\"message\": \"${ex.getMessage()}\"}"
+                "User created successfully"
+            } catch (ResponseStatusException rse) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists")
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())
             }
         })
     }
