@@ -7,6 +7,8 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotEmpty
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.relational.core.mapping.Column
 
@@ -28,22 +30,27 @@ class User {
 
     @Column("lastname")
     @JsonView(Views.Public.class)
+    @NotEmpty(message = "Last name is required!")
     private String lastName
 
     @Column("firstname")
     @JsonView(Views.Public.class)
+    @NotEmpty(message = "First name is required!")
     private String firstName
 
     @Column("username")
     @JsonView(Views.Public.class)
+    @NotEmpty(message = "Username is required!")
     private String userName
 
     @Column("email")
     @JsonView(Views.Public.class)
+    @Email(message = "Email should be valid")
     private String email
 
     @Column("password")
     @JsonView(Views.Internal.class)
+    @NotEmpty(message = "Password is required!")
     private String password
 
     @Column("image")

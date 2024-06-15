@@ -5,6 +5,7 @@ import com.cmd.spenditapi.models.User
 import com.cmd.spenditapi.repository.UserRepository
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatusCode
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 import org.springframework.http.HttpStatus
@@ -28,6 +29,9 @@ class UserService {
 
     CompletableFuture<User> getUserById(int id) {
         CompletableFuture.supplyAsync(() -> {
+            if(id == null || id <= 0){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid user ID provided!")
+            }
             try {
                 return userRepository.findById(id)
                         .orElseThrow(() -> new UserNotFoundException("User not found"))
