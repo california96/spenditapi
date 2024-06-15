@@ -1,10 +1,14 @@
 package com.cmd.spenditapi.models
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonView
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotEmpty
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.relational.core.mapping.Column
 
@@ -15,29 +19,42 @@ import org.springframework.boot.autoconfigure.domain.EntityScan
 @EntityScan
 @Table("users")
 class User {
+
     @Id
     @org.springframework.data.annotation.Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column("userid")
+    @Schema(hidden = true)
+    @JsonView(Views.Public.class)
     private int userID //use this for URL parameters only!
 
     @Column("lastname")
+    @JsonView(Views.Public.class)
+    @NotEmpty(message = "Last name is required!")
     private String lastName
 
     @Column("firstname")
+    @JsonView(Views.Public.class)
+    @NotEmpty(message = "First name is required!")
     private String firstName
 
     @Column("username")
+    @JsonView(Views.Public.class)
+    @NotEmpty(message = "Username is required!")
     private String userName
 
     @Column("email")
+    @JsonView(Views.Public.class)
+    @Email(message = "Email should be valid")
     private String email
 
     @Column("password")
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
+    @NotEmpty(message = "Password is required!")
     private String password
 
     @Column("image")
+    @JsonView(Views.Public.class)
     private String image
 
     User(){}
