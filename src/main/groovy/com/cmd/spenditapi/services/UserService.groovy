@@ -45,13 +45,24 @@ class UserService {
 
     CompletableFuture<String> createUser(User user){
         CompletableFuture.supplyAsync(()->{
+            if (user == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is missing")
+            }
+            if (!user.getUserName() || !user.getEmail() || !user.getPassword()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide all required fields")
+            }
+            if (!user.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email format")
+            }
             if (userRepository.existsByEmail(user.getEmail())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists")
             }
             try {
                 String encodedPassword = passwordEncoder.encode(user.getPassword())
                 user.setPassword(encodedPassword)
-                user.setImage("default.png")
+                if(!user.getImage()){
+                    user.setImage("default.png")
+                }
                 userRepository.save(user)
                 "User created successfully"
             } catch (ResponseStatusException rse) {
