@@ -5,11 +5,11 @@ import com.cmd.spenditapi.models.User
 import com.cmd.spenditapi.repository.UserRepository
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatusCode
-import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
+
 import java.util.concurrent.CompletableFuture
 
 @Slf4j
@@ -21,7 +21,7 @@ class UserService {
     private final BCryptPasswordEncoder passwordEncoder
 
     @Autowired
-    UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder){
+    UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository
         this.passwordEncoder = passwordEncoder
     }
@@ -29,7 +29,7 @@ class UserService {
 
     CompletableFuture<User> getUserById(int id) {
         CompletableFuture.supplyAsync(() -> {
-            if(id == null || id <= 0){
+            if (id == null || id <= 0) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid user ID provided!")
             }
             try {
@@ -43,16 +43,16 @@ class UserService {
         })
     }
 
-    CompletableFuture<String> createUser(User user){
-        CompletableFuture.supplyAsync(()->{
+    CompletableFuture<String> createUser(User user) {
+        CompletableFuture.supplyAsync(() -> {
             if (user == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is missing")
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is missing")
             }
             if (!user.getUserName() || !user.getEmail() || !user.getPassword()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide all required fields")
             }
-            if (!user.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email format")
+            if (!user.getEmail().matches(/^[A-Za-z0-9+_.-]+@(.+)$/)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email format")
             }
             if (userRepository.existsByEmail(user.getEmail())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists")
@@ -60,9 +60,10 @@ class UserService {
             try {
                 String encodedPassword = passwordEncoder.encode(user.getPassword())
                 user.setPassword(encodedPassword)
-                if(!user.getImage()){
+                if (!user.getImage()) {
                     user.setImage("default.png")
                 }
+                user.setActive(true)
                 userRepository.save(user)
                 "User created successfully"
             } catch (ResponseStatusException rse) {
