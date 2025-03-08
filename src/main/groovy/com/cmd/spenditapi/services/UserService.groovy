@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.server.ResponseStatusException
 
 import java.util.concurrent.CompletableFuture
@@ -40,6 +41,15 @@ class UserService {
             } catch (Exception e) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())
             }
+        }).exceptionally({ throwable ->
+            if (throwable instanceof ResponseStatusException) {
+                ResponseStatusException rse = (ResponseStatusException) throwable
+                log.error("Get user error", rse)
+                throw rse
+            } else {
+                log.error("Unexpected error retrieving user", throwable)
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve user")
+            }
         })
     }
 
@@ -70,6 +80,16 @@ class UserService {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists")
             } catch (Exception e) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage())
+            }
+        }).exceptionally({throwable ->
+            if(throwable instanceof ResponseStatusException){
+                ResponseStatusException rse = (ResponseStatusException) throwable
+                log.error("Request processing error", rse)
+                throw rse
+            }
+            else{
+                log.error("Unexpected error creating user", throwable)
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create user")
             }
         })
     }
