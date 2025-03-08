@@ -5,6 +5,7 @@ import com.cmd.spenditapi.services.UserService
 import com.fasterxml.jackson.annotation.JsonView
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -35,6 +36,12 @@ class UserController {
     @JsonView(Views.Internal.class)
     CompletableFuture<String> createUser(@RequestBody @JsonView(Views.Internal.class) User user){
         userService.createUser(user)
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @JsonView(Views.Internal.class)
+    CompletableFuture<String> deleteUser(@PathVariable("id") int userID){
+        userService.deleteUserByID(userID)
     }
 
 }

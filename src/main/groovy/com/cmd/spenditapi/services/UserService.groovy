@@ -93,5 +93,31 @@ class UserService {
             }
         })
     }
+    CompletableFuture<String> deleteUserByID(int id){
+        CompletableFuture.supplyAsync(() -> {
+            if (id == null || id <= 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid user ID provided!")
+            }
+            try {
+                User user = userRepository.findById(id)
+                        .orElseThrow(() -> new UserNotFoundException("User not found"))
+                user.setIsActive(false)
+                userRepository.save(user)
+                "success"
+            }catch(ResponseStatusException rse){
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, rse.getMessage())
+            }
+        }
+        ).exceptionally ({ throwable ->
+            if (throwable instanceof ResponseStatusException) {
+                ResponseStatusException rse = (ResponseStatusException) throwable
+                log.error("Request processing error", rse)
+                throw rse
+            } else {
+                log.error("Unexpected error creating user", throwable)
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create user")
+            }
+        })
+    }
 }
 
