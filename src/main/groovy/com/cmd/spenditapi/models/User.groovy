@@ -1,46 +1,66 @@
 package com.cmd.spenditapi.models
+
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonView
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import org.springframework.data.relational.core.mapping.Table
-import org.springframework.data.relational.core.mapping.Column
-
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotEmpty
 import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.data.relational.core.mapping.Column
+import org.springframework.data.relational.core.mapping.Table
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Entity
 @EntityScan
 @Table("users")
 class User {
+
     @Id
     @org.springframework.data.annotation.Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column("userid")
+    @Schema(hidden = true)
+    @JsonView(Views.Public.class)
     private int userID //use this for URL parameters only!
 
     @Column("lastname")
+    @JsonView(Views.Public.class)
+    @NotEmpty(message = "Last name is required!")
     private String lastName
 
     @Column("firstname")
+    @JsonView(Views.Public.class)
+    @NotEmpty(message = "First name is required!")
     private String firstName
 
     @Column("username")
+    @JsonView(Views.Public.class)
+    @NotEmpty(message = "Username is required!")
     private String userName
 
     @Column("email")
+    @JsonView(Views.Public.class)
+    @Email(message = "Email should be valid")
     private String email
 
     @Column("password")
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
+    @NotEmpty(message = "Password is required!")
     private String password
 
     @Column("image")
+    @JsonView(Views.Public.class)
     private String image
 
-    User(){}
+    @Column("isActive")
+    @JsonView(Views.Public.class)
+    private boolean isActive
+
+    User() {}
 
     User(String lastName, String firstName, String userName, String email, String password, String image) {
         this.lastName = lastName
@@ -51,7 +71,7 @@ class User {
         this.image = image
     }
 
-    User(int userId, String userName, String email, String firstName, String lastName, String image){
+    User(int userId, String userName, String email, String firstName, String lastName, String image) {
         this.userID = userId
         this.userName = userName
         this.email = email
@@ -124,5 +144,13 @@ class User {
 
     void setImage(String image) {
         this.image = image
+    }
+
+    boolean getIsActive() {
+        return isActive
+    }
+
+    void setIsActive(boolean isActive) {
+        this.isActive = isActive
     }
 }

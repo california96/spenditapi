@@ -1,31 +1,40 @@
 package com.cmd.spenditapi.controller
 import com.cmd.spenditapi.models.User
-import com.cmd.spenditapi.repository.UserRepository
+import com.cmd.spenditapi.models.Views
 import com.cmd.spenditapi.services.UserService
+import com.fasterxml.jackson.annotation.JsonView
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ExecutionException
 
 @RestController
+@RequestMapping("/user")
+@Tag(name = "User Module", description = "Operations related to user management")
 class UserController {
     @Autowired
-    UserService userService
+    private UserService userService
 
     @Autowired
     UserController(UserService userService){
         this.userService = userService
     }
 
-    @GetMapping("/user/{id}")
+    @GetMapping("/{id}")
+    @JsonView(Views.Public.class)
     CompletableFuture<User> getUser(@PathVariable("id") int userID) {
         userService.getUserById(userID)
+    }
+
+    @PostMapping("/create")
+    @JsonView(Views.Internal.class)
+    CompletableFuture<String> createUser(@RequestBody @JsonView(Views.Internal.class) User user){
+        userService.createUser(user)
     }
 
 }
